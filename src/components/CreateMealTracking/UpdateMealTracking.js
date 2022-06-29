@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
-import { useHistory } from "react-router";
+import { useHistory, useParams } from "react-router";
 import mealsTrackingApi from "services/MealsTrackingApi";
 import swal from "sweetalert";
 import Select from "react-select";
 import { Typography } from "@mui/material";
 
-function CreateMealTracking() {
+function UpdateMealTracking() {
+  const { mealstrackingid } = useParams();
   const [usertrackingid, setUsertrackingid] = useState(
     localStorage.getItem("userTrackingId")
   );
@@ -16,6 +17,9 @@ function CreateMealTracking() {
 
   const history = useHistory();
 
+  const [mealtrackingid, setMealtrackingid] = useState(
+    localStorage.getItem("mealtrackingid")
+  );
   const [created_at, setCreated_at] = useState();
   const [name, setName] = useState();
   const [type, setType] = useState();
@@ -44,31 +48,44 @@ function CreateMealTracking() {
     },
   ]);
 
-  const [mealstracking, setMealsTracking] = useState();
+  const [mealtracking, setMealTracking] = useState([]);
 
   const handleBack = () => {
     return history.push("/mealstracking");
   };
 
-  const createMealstracking = async (e) => {
-    console.log(created_at);
+  useEffect(() => {
+    mealsTrackingApi
+      .getMealTrackingById(mealstrackingid, accessToken)
+      .then((data) => {
+        console.log(data);
+        data.created_at = data.created_at.slice(0, 16);
+        setMealTracking(data);
+      });
+  }, []);
+
+  const updateMeal = async (e) => {
     e.preventDefault();
-    const response = await mealsTrackingApi.createByUserTrackingId(
-      usertrackingid,
+    console.log(mealtracking.created_at);
+    const response = await mealsTrackingApi.updateById(
+      mealstrackingid,
       accessToken,
       {
-        name,
-        type,
-        description,
-        created_at,
+        name: name === undefined ? mealtracking.name : name,
+        type: type === undefined ? mealtracking.type : type,
+        description:
+          description === undefined ? mealtracking.description : description,
+        created_at:
+          created_at === undefined
+            ? mealtracking.created_at.concat(":00Z")
+            : created_at,
       }
     );
     if (response.name) {
-      console.log(response.status === 200);
-      swal("Success", "Bạn đã tạo thành công nhật ký bữa ăn!", "success", {
+      swal("Success", "Bạn đã cập nhật thành công nhật ký bữa ăn!", "success", {
         button: false,
         timer: 2000,
-      }).then((value) => {
+      }).then(() => {
         window.location.href = "/user/mealstracking";
       });
     } else {
@@ -87,10 +104,10 @@ function CreateMealTracking() {
           <Col md="8">
             <Card>
               <Card.Header>
-                <Card.Title as="h4">Tạo mới nhật ký bữa ăn</Card.Title>
+                <Card.Title as="h4">Cập nhật nhật ký bữa ăn</Card.Title>
               </Card.Header>
               <Card.Body>
-                <Form onSubmit={createMealstracking}>
+                <Form onSubmit={updateMeal}>
                   <Row>
                     <Col className="px-1" md="6">
                       <Form.Group>
@@ -98,7 +115,8 @@ function CreateMealTracking() {
                         <Form.Control
                           id="created_at"
                           name="created_at"
-                          // defaultValue=""
+                          defaultValue={mealtracking.created_at}
+                          //   value={mealtracking.created_at}
                           plceholder="Chọn thời gian bữa ăn"
                           type="datetime-local"
                           onChange={(e) => {
@@ -134,7 +152,7 @@ function CreateMealTracking() {
                         <Form.Control
                           id="name"
                           name="name"
-                          // defaultValue=""
+                          defaultValue={mealtracking.name}
                           placeholder="Nhập tên cho bữa ăn của bạn"
                           type="text"
                           onChange={(e) => {
@@ -165,7 +183,7 @@ function CreateMealTracking() {
                         <Form.Control
                           id="description"
                           name="description"
-                          // defaultValue=""
+                          defaultValue={mealtracking.description}
                           placeholder="Ghi chú thích cho bữa ăn của bạn(nếu có)"
                           type="text"
                           onChange={(e) => {
@@ -183,7 +201,7 @@ function CreateMealTracking() {
                     type="submit"
                     variant="info"
                   >
-                    Tạo đăng ký cho bữa ăn
+                    Cập nhật nhật ký bữa ăn
                   </Button>
                   <div className="clearfix"></div>
                 </Form>
@@ -196,4 +214,4 @@ function CreateMealTracking() {
   );
 }
 
-export default CreateMealTracking;
+export default UpdateMealTracking;

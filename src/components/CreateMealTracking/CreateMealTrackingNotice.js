@@ -5,7 +5,7 @@ function createMealTrackingNotice() {
   return (
     <>
       <p>Bạn chưa có nhật ký dinh dưỡng nào cả.</p>
-      <Link to="/admin/mealstracking/createmealtracking">Tạo ngay nhé!</Link>
+      <Link to="/user/mealstracking/createmealtracking">Tạo ngay nhé!</Link>
     </>
   );
 }

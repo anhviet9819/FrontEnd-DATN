@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import ChartistGraph from "react-chartist";
 // react-bootstrap components
 import {
@@ -15,37 +15,8 @@ import {
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
-import getUserDetails from "services/ProfileApi";
-import profileApi from "services/ProfileApi";
-import basicProfileApi from "services/BasicProfileApi";
-import basicTrackingApi from "services/BasicTrackingApi";
-import { Select } from "@material-ui/core";
 
-function Dashboard() {
-  const [accessToken, setAccessToken] = useState(
-    localStorage.getItem("accessToken")
-  );
-  const [username, setUsername] = useState(localStorage.getItem("username"));
-
-  const [userProfile, setUserProfile] = useState({});
-  const [userTrackingProfile, setUserTrackingProfile] = useState({});
-
-  useEffect(() => {
-    basicProfileApi.getByUsername(username, accessToken).then((data) => {
-      localStorage.setItem("name", data.name);
-      localStorage.setItem("birthday", data.birthday.substring(0, 10));
-      setUserProfile(data);
-      // console.log(data);
-      basicTrackingApi
-        .getById(data.usersTracking.id, accessToken)
-        .then((data1) => {
-          // console.log(data1);
-          setUserTrackingProfile(data1);
-          localStorage.setItem("userTrackingId", data1.id);
-        });
-    });
-  }, []);
-
+function AdminDashboard() {
   return (
     <>
       <Container fluid>
@@ -61,10 +32,8 @@ function Dashboard() {
                   </Col>
                   <Col xs="7">
                     <div className="numbers">
-                      <p className="card-category">Chiều cao</p>
-                      <Card.Title as="h4">
-                        {userTrackingProfile.current_height}cm
-                      </Card.Title>
+                      <p className="card-category">Number</p>
+                      <Card.Title as="h4">150GB</Card.Title>
                     </div>
                   </Col>
                 </Row>
@@ -89,10 +58,8 @@ function Dashboard() {
                   </Col>
                   <Col xs="7">
                     <div className="numbers">
-                      <p className="card-category">Cân nặng</p>
-                      <Card.Title as="h4">
-                        {userTrackingProfile.current_weight}cm
-                      </Card.Title>
+                      <p className="card-category">Revenue</p>
+                      <Card.Title as="h4">$ 1,345</Card.Title>
                     </div>
                   </Col>
                 </Row>
@@ -117,10 +84,8 @@ function Dashboard() {
                   </Col>
                   <Col xs="7">
                     <div className="numbers">
-                      <p className="card-category">Chỉ số đường huyết</p>
-                      <Card.Title as="h4">
-                        {userTrackingProfile.current_normal_blood}mm/Hg
-                      </Card.Title>
+                      <p className="card-category">Errors</p>
+                      <Card.Title as="h4">23</Card.Title>
                     </div>
                   </Col>
                 </Row>
@@ -145,11 +110,8 @@ function Dashboard() {
                   </Col>
                   <Col xs="7">
                     <div className="numbers">
-                      <p className="card-category">Chỉ số huyết áp</p>
-                      <Card.Title as="h4">
-                        {userTrackingProfile.current_diastolic}/
-                        {userTrackingProfile.current_systolic}
-                      </Card.Title>
+                      <p className="card-category">Followers</p>
+                      <Card.Title as="h4">+45K</Card.Title>
                     </div>
                   </Col>
                 </Row>
@@ -276,7 +238,7 @@ function Dashboard() {
           <Col md="6">
             <Card>
               <Card.Header>
-                <Card.Title as="h4">Thống kê dinh dưỡng</Card.Title>
+                <Card.Title as="h4">2017 Sales</Card.Title>
                 <p className="card-category">All products including Taxes</p>
               </Card.Header>
               <Card.Body>
@@ -334,15 +296,15 @@ function Dashboard() {
               </Card.Body>
               <Card.Footer>
                 <div className="legend">
-                  <i className="fas fa-circle text-info"></i>Lượng calo nạp vào
-                  <i className="fas fa-circle text-danger"></i>Lượng calo tiêu
-                  thụ
+                  <i className="fas fa-circle text-info"></i>
+                  Tesla Model S <i className="fas fa-circle text-danger"></i>
+                  BMW 5 Series
                 </div>
                 <hr></hr>
-                {/* <div className="stats">
+                <div className="stats">
                   <i className="fas fa-check"></i>
                   Data information certified
-                </div> */}
+                </div>
               </Card.Footer>
             </Card>
           </Col>
@@ -655,4 +617,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default AdminDashboard;

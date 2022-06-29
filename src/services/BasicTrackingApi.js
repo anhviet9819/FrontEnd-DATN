@@ -18,7 +18,6 @@ const basicTrackingApi = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      Bearer: accessToken,
       body: JSON.stringify(updateData),
     }).then((data) => data.json());
   },

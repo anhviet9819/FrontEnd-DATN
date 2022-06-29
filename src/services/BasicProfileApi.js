@@ -21,6 +21,18 @@ const basicProfileApi = {
       }),
     }).then((data) => data.json());
   },
+  changePassword(username, accessToken, oldPassword, newPassword) {
+    return fetch(
+      `http://localhost:8080/api/auth/updatepassword/${username}?oldPassword=${oldPassword}&newPassword=${newPassword}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
 };
 
 export default basicProfileApi;
