@@ -12,10 +12,8 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import signinUser from "../services/SignInApi";
+import signinUser from "../../services/SignInApi";
 import swal from "sweetalert";
-import { fakeAuth } from "components/AuthenticatedRoute/AuthenticatedRoute";
-import { Redirect } from "react-router";
 
 function Copyright(props) {
   return (
@@ -37,7 +35,7 @@ function Copyright(props) {
 
 const theme = createTheme();
 
-export default function SignIn() {
+export default function AdminSignIn() {
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
 
@@ -49,29 +47,18 @@ export default function SignIn() {
         password,
       });
       console.log(response);
-      if (response) {
-        if (response.is_active === true) {
-          swal("Success", "Bạn đã đăng nhập thành công!", "success", {
-            button: false,
-            timer: 2000,
-          }).then((value) => {
-            localStorage.setItem("accessToken", response["accessToken"]);
-            localStorage.setItem("username", response["username"]);
-            localStorage.setItem("id", response["id"]);
-            localStorage.setItem("roles", response.roles[0]);
-            window.location.href = "/user/dashboard";
-          });
-        } else {
-          swal(
-            "Failed",
-            "Tài khoản của bạn đã bị khóa, hãy liên lạc với admin để mở khóa!",
-            "error",
-            {
-              button: false,
-              timer: 2000,
-            }
-          );
-        }
+
+      if (response.roles[0] === "ROLE_ADMIN") {
+        swal("Success", "Bạn đã đăng nhập thành công!", "success", {
+          button: false,
+          timer: 2000,
+        }).then((value) => {
+          localStorage.setItem("accessToken", response["accessToken"]);
+          localStorage.setItem("username", response["username"]);
+          localStorage.setItem("id", response["id"]);
+          localStorage.setItem("roles", response.roles[0]);
+          window.location.href = "/admin/dashboard";
+        });
       } else {
         swal(
           "Failed",
@@ -87,9 +74,6 @@ export default function SignIn() {
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
-        {/* <Link flexDirection="row-reverse" href="/adminsignin">
-          Chuyển đến trang admin
-        </Link> */}
         <CssBaseline />
         <Box
           sx={{
@@ -118,9 +102,7 @@ export default function SignIn() {
               name="username"
               autoComplete="username"
               autoFocus
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
+              onChange={(e) => setUsername(e.target.value)}
             />
             <TextField
               margin="normal"
@@ -149,11 +131,6 @@ export default function SignIn() {
               <Grid item xs>
                 <Link href="#" variant="body2">
                   Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="/signup" variant="body2">
-                  {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>
             </Grid>

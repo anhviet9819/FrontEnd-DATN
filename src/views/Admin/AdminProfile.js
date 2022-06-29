@@ -12,14 +12,12 @@ import {
   Row,
   Col,
 } from "react-bootstrap";
-import basicProfileApi from "services/BasicProfileApi";
-import profileApi from "services/ProfileApi";
 import getUserDetails from "services/ProfileApi";
 import ProfileApi from "services/ProfileApi";
 import updateUserDetails from "services/ProfileApi2";
 import swal from "sweetalert";
 
-function UserProfile() {
+function AdminProfile() {
   const [username, setUsername] = useState(localStorage.getItem("username"));
   const [accessToken, setAccessToken] = useState(
     localStorage.getItem("accessToken")
@@ -30,14 +28,14 @@ function UserProfile() {
 
   const updateProfile = async (e) => {
     e.preventDefault();
-
     const response = await updateUserDetails(
       username,
       accessToken,
-      name === undefined ? userProfile.name : name,
-      birthday === undefined ? userProfile.birthday : birthday
+      name,
+      birthday
     );
-    if (response.name) {
+    if (response) {
+      console.log(response.status === 200);
       swal(
         "Success",
         "Bạn đã cập nhật thông tin cá nhân thành công!",
@@ -46,13 +44,17 @@ function UserProfile() {
           button: false,
           timer: 2000,
         }
-      ).then(() => {
-        window.location.href = "/user/userprofile";
+      ).then((value) => {
+        // localStorage.setItem("accessToken", response["accessToken"]);
+        // localStorage.setItem("username", response["username"]);
+        window.location.href = "/user/user";
       });
     } else {
+      console.log("viett");
+      // console.log(response)
       swal(
         "Failed",
-        "Thông tin bạn nhập không hợp lệ, hãy kiểm tra lại!",
+        "Thông tin bạn nhập không hợp lệ! Hãy kiểm tra lại.",
         "error"
       );
       // alert("hahaha");
@@ -61,24 +63,26 @@ function UserProfile() {
 
   useEffect(() => {
     let mounted = true;
-    basicProfileApi.getByUsername(username, accessToken).then((data) => {
+    getUserDetails(
+      localStorage.getItem("username"),
+      localStorage.getItem("accessToken")
+    ).then((userProfileDetails) => {
       if (mounted) {
-        if (data.birthday) {
-          let newBirthday = new Date(data.birthday);
-          let birthdayLocal = newBirthday.toLocaleDateString().split("/");
-          // console.log(newBirthday);
-          // console.log(birthdayLocal);
-          if (birthdayLocal[1].length === 1) {
-            birthdayLocal[1] = `0${birthdayLocal[1]}`;
-          }
-          if (birthdayLocal[0].length === 1) {
-            birthdayLocal[0] = `0${birthdayLocal[0]}`;
-          }
-          data.birthday = `${birthdayLocal[2]}-${birthdayLocal[0]}-${birthdayLocal[1]}`;
+        if (userProfileDetails.birthday) {
+          // console.log(userProfileDetails.birthday.substring(0, 10));
+          userProfileDetails.birthday = userProfileDetails.birthday.substring(
+            0,
+            10
+          );
         }
-        setUserProfile(data);
+        localStorage.setItem(
+          "userTrackingId",
+          userProfileDetails.usersTracking.id
+        );
+        setUserProfile(userProfileDetails);
       }
     });
+    // return () => (mounted = false);
   }, []);
 
   return (
@@ -158,12 +162,7 @@ function UserProfile() {
                           defaultValue={userProfile.birthday}
                           placeholder="Enter your birthday"
                           type="date"
-                          onChange={(e) => {
-                            // console.log(e.target.value);
-                            // let birthday = new Date(e.target.value);
-                            // setBirthday(birthday);
-                            setBirthday(e.target.value);
-                          }}
+                          onChange={(e) => setBirthday(e.target.value)}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -242,7 +241,7 @@ function UserProfile() {
                     type="submit"
                     variant="info"
                   >
-                    Cập nhật
+                    Update Profile
                   </Button>
                   <div className="clearfix"></div>
                 </Form>
@@ -259,8 +258,8 @@ function UserProfile() {
                   //     .default
                   // }
                   // src={
-                  // require("../assets/img/photo-1431578500526-4d9613015464.jpeg")
-                  //   .default
+                  //   require("../assets/img/photo-1431578500526-4d9613015464.jpeg")
+                  //     .default
                   // }
                 ></img>
               </div>
@@ -317,4 +316,4 @@ function UserProfile() {
   );
 }
 
-export default UserProfile;
+export default AdminProfile;

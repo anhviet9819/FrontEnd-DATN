@@ -2,7 +2,9 @@ import React, { Component } from "react";
 import { useLocation, NavLink } from "react-router-dom";
 
 import { Nav } from "react-bootstrap";
-
+import FastfoodIcon from "@mui/icons-material/Fastfood";
+import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
+import DirectionsRunOutlinedIcon from "@mui/icons-material/DirectionsRunOutlined";
 function Sidebar({ color, image, routes }) {
   const location = useLocation();
   const activeRoute = (routeName) => {
@@ -32,7 +34,7 @@ function Sidebar({ color, image, routes }) {
         </div>
         <Nav>
           {routes.map((prop, key) => {
-            if (!prop.redirect)
+            if (!prop.redirect) {
               return (
                 <li
                   className={
@@ -47,11 +49,26 @@ function Sidebar({ color, image, routes }) {
                     className="nav-link"
                     activeClassName="active"
                   >
-                    <i className={prop.icon} />
-                    <p>{prop.name}</p>
+                    {prop.icon ? (
+                      <p>
+                        <i className={prop.icon} />
+                        <p>{prop.name}</p>
+                      </p>
+                    ) : prop.muiicon === "meal" ? (
+                      <p>
+                        <FastfoodIcon fontSize="large" />
+                        <p>&nbsp;&nbsp;&nbsp;{prop.name}</p>
+                      </p>
+                    ) : (
+                      <p>
+                        <DirectionsRunOutlinedIcon fontSize="large" />
+                        <p>&nbsp;&nbsp;&nbsp;{prop.name}</p>
+                      </p>
+                    )}
                   </NavLink>
                 </li>
               );
+            }
             return null;
           })}
         </Nav>

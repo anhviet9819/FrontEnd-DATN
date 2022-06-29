@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { useLocation } from "react-router-dom";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
 
-import adminRoutes from "../../adminRoutes";
+import routes from "../../routes";
 
 function Header() {
   const location = useLocation();
@@ -19,13 +19,9 @@ function Header() {
   };
 
   const getBrandText = () => {
-    for (let i = 0; i < adminRoutes.length; i++) {
-      if (
-        location.pathname.indexOf(
-          adminRoutes[i].layout + adminRoutes[i].path
-        ) !== -1
-      ) {
-        return adminRoutes[i].name;
+    for (let i = 0; i < routes.length; i++) {
+      if (location.pathname.indexOf(routes[i].layout + routes[i].path) !== -1) {
+        return routes[i].name;
       }
     }
     return "Brand";
@@ -33,7 +29,7 @@ function Header() {
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/adminsignin";
+    window.location.href = "/signin";
   };
 
   return (
@@ -136,10 +132,36 @@ function Header() {
                 href="#pablo"
                 onClick={(e) => e.preventDefault()}
               >
-                <span className="no-icon">Đổi mật khẩu</span>
+                <span className="no-icon">Account</span>
               </Nav.Link>
             </Nav.Item>
-
+            <Dropdown as={Nav.Item}>
+              <Dropdown.Toggle
+                aria-expanded={false}
+                aria-haspopup={true}
+                as={Nav.Link}
+                data-toggle="dropdown"
+                id="navbarDropdownMenuLink"
+                variant="default"
+                className="m-0"
+              >
+                <span className="no-icon">Tài khoản</span>
+              </Dropdown.Toggle>
+              <Dropdown.Menu aria-labelledby="navbarDropdownMenuLink">
+                <Dropdown.Item
+                  href="/user/userprofile"
+                  // onClick={(e) => e.preventDefault()}
+                >
+                  Thông tin cá nhân
+                </Dropdown.Item>
+                <Dropdown.Item
+                  href="/user/updatepassword"
+                  // onClick={(e) => e.preventDefault()}
+                >
+                  Đổi mật khẩu
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
             <Nav.Item>
               <Nav.Link
                 className="m-0"

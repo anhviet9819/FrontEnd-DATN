@@ -40,26 +40,46 @@ export default function SignUp() {
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
 
+  const [isValidEmail, setIsValidEmail] = useState(true);
+  const [isValidUsername, setIsValidUsername] = useState(true);
+  const [isValidPassword, setIsValidPassword] = useState(true);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await signupUser({
-      email,
-      username,
-      password,
-    });
-    if (response.message === "User registered successfully!") {
-      // console.log(response['accessToken'])
-      swal("Success", "You 've registered succesfully!", "success", {
-        button: false,
-        timer: 2000,
-      }).then((value) => {
-        // localStorage.setItem('accessToken', response['accessToken']);
-        // localStorage.setItem('username', JSON.stringify(response['username']));
-        window.location.href = "/signin";
+    if (
+      isValidEmail === true &&
+      isValidUsername === true &&
+      isValidPassword === true
+    ) {
+      const response = await signupUser({
+        email,
+        username,
+        password,
       });
+      if (response.message === "User registered successfully!") {
+        // console.log(response['accessToken'])
+        swal("Success", "Bạn đã đăng ký tài khoản thành công!", "success", {
+          button: false,
+          timer: 2000,
+        }).then(() => {
+          // localStorage.setItem('accessToken', response['accessToken']);
+          // localStorage.setItem('username', JSON.stringify(response['username']));
+          window.location.href = "/signin";
+        });
+      } else {
+        // console.log(response)
+        swal(
+          "Failed",
+          "Email hoặc tên tài khoản đã được sử dụng. Hãy thử lại!",
+          "error"
+        );
+      }
     } else {
-      // console.log(response)
-      swal("Failed", "username or password are invalid!", "error");
+      swal(
+        "Failed",
+        "Thông tin bạn nhập vào chưa hợp lệ, hãy kiểm tra lại!",
+        "error"
+      );
     }
   };
 
@@ -94,8 +114,27 @@ export default function SignUp() {
               name="email"
               autoComplete="email"
               autoFocus
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                let temp = e.target.value;
+                setEmail(e.target.value);
+                if (
+                  temp.match(
+                    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                  )
+                ) {
+                  setIsValidEmail(true);
+                } else {
+                  setIsValidEmail(false);
+                }
+              }}
             />
+            {isValidEmail === false ? (
+              <Typography variant="body2" color="red" fontSize="13px">
+                *Email không đúng định dạng, hãy kiểm tra lại
+              </Typography>
+            ) : (
+              <></>
+            )}
             <TextField
               margin="normal"
               required
@@ -105,8 +144,24 @@ export default function SignUp() {
               name="username"
               autoComplete="username"
               autoFocus
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                let temp = e.target.value;
+                setUsername(e.target.value);
+                if (temp.length >= 6 && temp.length <= 30) {
+                  setIsValidUsername(true);
+                } else {
+                  setIsValidUsername(false);
+                }
+              }}
             />
+            {isValidUsername === false ? (
+              <Typography variant="body2" color="red" fontSize="13px">
+                *Tên đăng nhập phải lớn hơn 6 ký tự và nhỏ hơn 30 ký tự, hãy
+                kiểm tra lại
+              </Typography>
+            ) : (
+              <></>
+            )}
             <TextField
               margin="normal"
               required
@@ -116,19 +171,33 @@ export default function SignUp() {
               type="password"
               id="password"
               autoComplete="current-password"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                let temp = e.target.value;
+                setPassword(e.target.value);
+                if (
+                  temp.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/)
+                ) {
+                  setIsValidPassword(true);
+                } else {
+                  setIsValidPassword(false);
+                }
+              }}
             />
-            {/* <FormControlLabel
-                    control={<Checkbox value="remember" color="primary" />}
-                    label="Remember me"
-                /> */}
+            {isValidPassword === false ? (
+              <Typography variant="body2" color="red" fontSize="13px">
+                *Mật khẩu phải chứa ít nhất 8 ký tự bao gồm ít nhất 1 chữ cái
+                hoa, 1 chữ cái thường, 1 số và không có kí tự đặc biệt
+              </Typography>
+            ) : (
+              <></>
+            )}
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign Up
+              Đăng ký tài khoản
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>

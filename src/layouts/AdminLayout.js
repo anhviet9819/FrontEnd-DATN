@@ -6,11 +6,15 @@ import Footer from "../components/Footer/Footer";
 import Sidebar from "../components/Sidebar/Sidebar";
 import FixedPlugin from "../components/FixedPlugin/FixedPlugin.js";
 
-import routes from "../routes.js";
-
 import sidebarImage from "../assets/img/sidebar-3.jpg";
+import adminRoutes from "adminRoutes";
+import ActivityManageUpdate from "views/Admin/ActivityManageUpdate";
+import ActivityManageCreate from "views/Admin/ActivityManageCreate";
+import FoodManageUpdate from "views/Admin/FoodManageUpdate";
+import FoodManageUpdateNutrition from "views/Admin/FoodManageUpdateNutrition";
+import FoodManageCreate from "views/Admin/FoodManageCreate";
 
-function Admin() {
+function AdminLayout() {
   const [image, setImage] = React.useState(sidebarImage);
   const [color, setColor] = React.useState("black");
   const [hasImage, setHasImage] = React.useState(true);
@@ -18,8 +22,10 @@ function Admin() {
   const mainPanel = React.useRef(null);
   const getRoutes = (routes) => {
     return routes.map((prop, key) => {
-      if (prop.layout === "/admin") {
-        // console.log(prop.layout, prop.path);
+      if (
+        prop.layout === "/admin" &&
+        window.location.href.split("/").length === 5
+      ) {
         return (
           <Route
             path={prop.layout + prop.path}
@@ -28,7 +34,25 @@ function Admin() {
           />
         );
       } else {
-        return null;
+        return (
+          <Switch>
+            <Route path="/admin/activitymanage/update/:activityid">
+              <ActivityManageUpdate />
+            </Route>
+            <Route path="/admin/activitymanage/create">
+              <ActivityManageCreate />
+            </Route>
+            <Route path="/admin/foodmanage/updatefood/:foodid">
+              <FoodManageUpdate />
+            </Route>
+            <Route path="/admin/foodmanage/updatenutrition/:foodid">
+              <FoodManageUpdateNutrition />
+            </Route>
+            <Route path="/admin/foodmanage/create">
+              <FoodManageCreate />
+            </Route>
+          </Switch>
+        );
       }
     });
   };
@@ -48,11 +72,15 @@ function Admin() {
   return (
     <>
       <div className="wrapper">
-        <Sidebar color={color} image={hasImage ? image : ""} routes={routes} />
+        <Sidebar
+          color={color}
+          image={hasImage ? image : ""}
+          routes={adminRoutes}
+        />
         <div className="main-panel" ref={mainPanel}>
           <AdminNavbar />
           <div className="content">
-            <Switch>{getRoutes(routes)}</Switch>
+            <Switch>{getRoutes(adminRoutes)}</Switch>
           </div>
           <Footer />
         </div>
@@ -69,4 +97,4 @@ function Admin() {
   );
 }
 
-export default Admin;
+export default AdminLayout;
