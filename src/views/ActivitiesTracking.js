@@ -21,6 +21,7 @@ import {
 import activitiesTrackingApi from "services/ActivitiesTrackingApi";
 import swal from "sweetalert";
 import Select from "react-select";
+import Pagination from "components/Pagination";
 import listActivitiesApi from "services/ListActivitiesApi";
 
 function ActivitiesTracking() {
@@ -34,10 +35,17 @@ function ActivitiesTracking() {
   const [accesstoken, setAccesstoken] = useState(
     localStorage.getItem("accessToken")
   );
+  const [pagination, setPagination] = useState({
+    _page: 0,
+    _size: 7,
+    _totalRows: 100,
+  });
   const [filters, setFilters] = useState({
     createdAtStart: "",
     createdAtEnd: "",
     listActivitiesId: "",
+    _page: 0,
+    _size: 7,
   });
 
   const [createdList, setCreatedList] = useState([
@@ -69,7 +77,8 @@ function ActivitiesTracking() {
       .then((data) => {
         setActivitiestrackingDataCheck(data);
       });
-  }, [activitiestrackingDataCheck]);
+    console.log(activitiestrackingDataCheck);
+  }, []);
 
   useEffect(() => {
     listActivitiesApi.getAllNoFilters(accesstoken).then((data) => {
@@ -84,19 +93,48 @@ function ActivitiesTracking() {
       // console.log(data);
       setListActivities(data);
     });
+    return;
   }, []);
+
+  // useEffect(() => {
+  //   activitiesTrackingApi
+  //     .getByFilters(
+  //       accesstoken,
+  //       usertrackingid,
+  //       filters.createdAtStart,
+  //       filters.createdAtEnd,
+  //       filters.listActivitiesId
+  //     )
+  //     .then((data) => {
+  //       data.map((activitytracking) => {
+  //         activitytracking.created_at = new Date(
+  //           activitytracking.created_at
+  //         ).toLocaleString();
+  //         activitytracking.start_time = new Date(
+  //           activitytracking.start_time
+  //         ).toLocaleString();
+  //         activitytracking.end_time = new Date(
+  //           activitytracking.end_time
+  //         ).toLocaleString();
+  //       });
+  //       setActivitiestrackingData(data);
+  //     });
+  //   return;
+  // }, [filters]);
 
   useEffect(() => {
     activitiesTrackingApi
-      .getByFilters(
+      .getByFiltersPagination(
         accesstoken,
         usertrackingid,
         filters.createdAtStart,
         filters.createdAtEnd,
-        filters.listActivitiesId
+        filters.listActivitiesId,
+        filters._page,
+        filters._size
       )
       .then((data) => {
-        data.map((activitytracking) => {
+        data.content.map((activitytracking) => {
           activitytracking.created_at = new Date(
             activitytracking.created_at
           ).toLocaleString();
@@ -107,9 +145,23 @@ function ActivitiesTracking() {
             activitytracking.end_time
           ).toLocaleString();
         });
-        setActivitiestrackingData(data);
+        setActivitiestrackingData(data.content);
+        setPagination({
+          _page: data.number,
+          _size: data.size,
+          _totalRows: data.totalElements,
+        });
       });
+    return;
   }, [filters]);
+
+  function handlePageChange(newPage) {
+    // console.log("New page: ", newPage);
+    setFilters({
+      ...filters,
+      _page: newPage,
+    });
+  }
 
   const onHandleClick = () => {
     setIsShow(false);
@@ -128,7 +180,12 @@ function ActivitiesTracking() {
     }).then((willDelete) => {
       if (willDelete) {
         activitiesTrackingApi.deleteById(id, accesstoken);
-        swal("Success", "Bạn đã xóa nhật ký hoạt động thành công!", "success");
+        swal("Success", "Bạn đã xóa nhật ký hoạt động thành công!", "success", {
+          button: false,
+          timer: 2000,
+        }).then(() => {
+          window.location.href = "/user/activitiestracking";
+        });
       }
     });
   };
@@ -181,7 +238,7 @@ function ActivitiesTracking() {
                                     .toISOString()
                                     .slice(0, 10)
                                     .concat("T00:00:00.001Z");
-                                  //lay duoc 3 ngay truoc bat dau tu 0h
+                                  //lay duoc 3 ngay truoc bat dau tu 0h ????? Xem lai
                                   let currentDate3DaysAgo = new Date(
                                     new Date()
                                       .toISOString()
@@ -318,16 +375,27 @@ function ActivitiesTracking() {
                       </Table>
                     </Card.Body>
                   </Card>
+                  <Pagination
+                    pagination={pagination}
+                    onPageChange={handlePageChange}
+                  />
+                  <Button
+                    className="btn-fill pull-right"
+                    variant="primary"
+                    href="/user/activitiestracking/createactivitytracking"
+                  >
+                    Tạo nhật ký hoạt động mới
+                  </Button>
                 </Col>
               </Row>
-              <div>
+              {/* <div>
                 <Link
                   to="/user/activitiestracking/createactivitytracking"
                   onClick={() => onHandleClick()}
                 >
                   Tạo nhật ký hoạt động mới
                 </Link>
-              </div>
+              </div> */}
             </Container>
           </>
         )}

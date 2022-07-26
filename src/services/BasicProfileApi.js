@@ -33,6 +33,18 @@ const basicProfileApi = {
       }
     ).then((data) => data.json());
   },
+  getWarningIndexByUserTrackingId(accessToken, usertrackingid) {
+    return fetch(
+      `http://localhost:8080/api/warningindex/details/usertracking/${usertrackingid}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
 };
 
 export default basicProfileApi;

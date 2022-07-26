@@ -57,6 +57,20 @@ const mealFoodApi = {
       }
     ).then((data) => data.json());
   },
+  async addFood2ByMealsTrackingId(accessToken, mealsTrackingId, foodData) {
+    return fetch(
+      `http://localhost:8080/api/food/addfood/mealstracking/${mealsTrackingId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        Bearer: accessToken,
+        body: JSON.stringify(foodData),
+      }
+    ).then((data) => data.json());
+  },
   getAllFoodAddedByMealsTrackingId(accessToken, mealsTrackingId) {
     return fetch(
       `http://localhost:8080/api/mealfood/details/mealstracking/${mealsTrackingId}`,

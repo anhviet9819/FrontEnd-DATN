@@ -32,6 +32,35 @@ const mealsTrackingApi = {
       },
     }).then((data) => data.json());
   },
+  getBieuDoDinhDuongBuaAn(mealstrackingid, accessToken) {
+    return fetch(
+      `http://localhost:8080/api/mealstracking/bieudodinhduong/${mealstrackingid}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
+  getBieuDoDinhDuongBuaAnByCreatedAtBetween(
+    accessToken,
+    usertrackingid,
+    start,
+    end
+  ) {
+    return fetch(
+      `http://localhost:8080/api/mealstracking/bieudodinhduongtheoCreatedAtBetween?usertrackingid=${usertrackingid}&start=${start}&end=${end}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
   getByFilters(
     accessToken,
     usertrackingid,
@@ -41,6 +70,26 @@ const mealsTrackingApi = {
   ) {
     return fetch(
       `http://localhost:8080/api/mealstracking/details/userstrackingTypecreatedAt?usertrackingid=${usertrackingid}&createdAtStart=${createdatstart}&createdAtEnd=${createdatend}&type=${type}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
+  getByFiltersPagination(
+    accessToken,
+    usertrackingid,
+    createdatstart,
+    createdatend,
+    type,
+    page,
+    size
+  ) {
+    return fetch(
+      `http://localhost:8080/api/mealstracking/details/userstrackingTypecreatedAtPagination?usertrackingid=${usertrackingid}&createdAtStart=${createdatstart}&createdAtEnd=${createdatend}&type=${type}&page=${page}&size=${size}`,
       {
         method: "GET",
         headers: {

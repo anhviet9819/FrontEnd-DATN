@@ -16,6 +16,7 @@ import signinUser from "../services/SignInApi";
 import swal from "sweetalert";
 import { fakeAuth } from "components/AuthenticatedRoute/AuthenticatedRoute";
 import { Redirect } from "react-router";
+import basicProfileApi from "services/BasicProfileApi";
 
 function Copyright(props) {
   return (
@@ -54,11 +55,16 @@ export default function SignIn() {
           swal("Success", "Bạn đã đăng nhập thành công!", "success", {
             button: false,
             timer: 2000,
-          }).then((value) => {
+          }).then(() => {
             localStorage.setItem("accessToken", response["accessToken"]);
             localStorage.setItem("username", response["username"]);
             localStorage.setItem("id", response["id"]);
             localStorage.setItem("roles", response.roles[0]);
+            // basicProfileApi
+            //   .getByUsername(response["username"], response["accessToken"])
+            //   .then((data) => {
+            //     localStorage.setItem("userTrackingId", data.user_tracking_id);
+            //   });
             window.location.href = "/user/dashboard";
           });
         } else {

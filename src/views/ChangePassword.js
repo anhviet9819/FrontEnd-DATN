@@ -78,7 +78,7 @@ function ChangePassword() {
               <Card.Body>
                 <Form onSubmit={updatePassword}>
                   <Row>
-                    <Col className="px-1" md="6">
+                    <Col className="pr-1" md="6">
                       <Form.Group>
                         <label>Username</label>
                         <Form.Control
@@ -93,7 +93,7 @@ function ChangePassword() {
                     </Col>
                   </Row>
                   <Row>
-                    <Col className="px-1" md="6">
+                    <Col className="pr-1" md="6">
                       <Form.Group>
                         <label>Mật khẩu cũ</label>
                         <Form.Control
@@ -109,7 +109,7 @@ function ChangePassword() {
                     </Col>
                   </Row>
                   <Row>
-                    <Col className="px-1" md="6">
+                    <Col className="pr-1" md="6">
                       <Form.Group>
                         <label>Mật khẩu mới</label>
                         <Form.Control
@@ -144,7 +144,7 @@ function ChangePassword() {
                     </Col>
                   </Row>
                   <Row>
-                    <Col className="px-1" md="6">
+                    <Col className="pr-1" md="6">
                       <Form.Group>
                         <label>Xác nhận mật khẩu mới</label>
                         <Form.Control

@@ -24,13 +24,13 @@ const dashboardRoutes = [
     component: UserProfile,
     layout: "/user",
   },
-  {
-    path: "/usertracking",
-    name: "Sức khỏe cá nhân",
-    icon: "nc-icon nc-notes",
-    component: UserBasicTracking,
-    layout: "/user",
-  },
+  // {
+  //   path: "/usertracking",
+  //   name: "Sức khỏe cá nhân",
+  //   icon: "nc-icon nc-notes",
+  //   component: UserBasicTracking,
+  //   layout: "/user",
+  // },
   {
     path: "/basictrackinghistory",
     name: "Lịch sử sức khỏe",

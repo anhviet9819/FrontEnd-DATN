@@ -50,6 +50,38 @@ const activitiesTrackingApi = {
       }
     ).then((data) => data.json());
   },
+  getByFiltersPagination(
+    accessToken,
+    usertrackingid,
+    createdatstart,
+    createdatend,
+    listactivitiesid,
+    page,
+    size
+  ) {
+    return fetch(
+      `http://localhost:8080/api/activitiestracking/details/userstrackingListActivitiesCreatedAtPagination?usertrackingid=${usertrackingid}&createdAtStart=${createdatstart}&createdAtEnd=${createdatend}&listactivitiesid=${listactivitiesid}&page=${page}&size=${size}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
+  getToNotice(accessToken, usertrackingid, starttimestart, starttimeend) {
+    return fetch(
+      `http://localhost:8080/api/activitiestracking/details/userstrackingStartTime?usertrackingid=${usertrackingid}&startTimeStart=${starttimestart}&startTimeEnd=${starttimeend}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
   async createByUserTrackingId(userTrackingId, accessToken, data) {
     return fetch(
       `http://localhost:8080/api/activitiestracking/create/userstracking/${userTrackingId}/activitiestracking`,

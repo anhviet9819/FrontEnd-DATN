@@ -16,13 +16,14 @@ import {
   Tab,
   Form,
 } from "react-bootstrap";
-import { Route, Switch, useParams } from "react-router";
+import { Route, Switch, useHistory, useParams } from "react-router";
 import userTrackingHistory from "services/UserTrackingHistoryApi";
 import userTrackingHistoryApi from "services/UserTrackingHistoryApi";
 import swal from "sweetalert";
 
 function UpdateDiabatesMelitiyusHistory() {
   const { diabatesmelitiyusid } = useParams();
+  let history = useHistory();
 
   const [accessToken, setaccessToken] = useState(
     localStorage.getItem("accessToken")
@@ -92,6 +93,11 @@ function UpdateDiabatesMelitiyusHistory() {
       <Container fluid>
         <Row>
           <Col md="8">
+            <Button onClick={() => history.goBack()}>
+              <i class="fas fa-arrow-alt-circle-left"></i>Quay lại
+            </Button>
+            <br></br>
+            <br></br>
             <Card>
               <Card.Header>
                 <Card.Title as="h4">Chỉnh sửa lịch sử huyết áp</Card.Title>

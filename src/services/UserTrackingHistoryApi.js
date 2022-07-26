@@ -51,6 +51,42 @@ const userTrackingHistory = {
       }
     ).then((data) => data.json());
   },
+  getBieuDoChieuCaoCanNang(usertrackingid, accessToken, start, end) {
+    return fetch(
+      `http://localhost:8080/api/personalindex/bieudo/${usertrackingid}?starttime=${start}&endtime=${end}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
+  getBieuDoHuyetAp(usertrackingid, accessToken, start, end) {
+    return fetch(
+      `http://localhost:8080/api/bloodpressure/bieudo/${usertrackingid}?starttime=${start}&endtime=${end}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
+  getBieuDoDuongHuyet(usertrackingid, accessToken, start, end) {
+    return fetch(
+      `http://localhost:8080/api/diabatesmelitiyus/bieudo/${usertrackingid}?starttime=${start}&endtime=${end}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
   getPersonalIndexById(id, accessToken) {
     return fetch(`http://localhost:8080/api/personalindex/details/${id}`, {
       method: "GET",
@@ -77,6 +113,60 @@ const userTrackingHistory = {
         Authorization: `Bearer ${accessToken}`,
       },
     }).then((data) => data.json());
+  },
+  getPersonalIndexByUserTrackingIdPagination(
+    accessToken,
+    usertrackingid,
+    page,
+    size,
+    sorting
+  ) {
+    return fetch(
+      `http://localhost:8080/api/personalindex/userstracking/${usertrackingid}/pagination?page=${page}&size=${size}&sorting=${sorting}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
+  getBloodPressureByUserTrackingIdPagination(
+    accessToken,
+    usertrackingid,
+    page,
+    size,
+    sorting
+  ) {
+    return fetch(
+      `http://localhost:8080/api/bloodpressure/userstracking/${usertrackingid}/pagination?page=${page}&size=${size}&sorting=${sorting}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
+  },
+  getDiabatesMelitiyusByUserTrackingIdPagination(
+    accessToken,
+    usertrackingid,
+    page,
+    size,
+    sorting
+  ) {
+    return fetch(
+      `http://localhost:8080/api/diabatesmelitiyus/userstracking/${usertrackingid}/pagination?page=${page}&size=${size}&sorting=${sorting}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then((data) => data.json());
   },
   updatePersonalIndexById(id, accessToken, data) {
     return fetch(`http://localhost:8080/api/personalindex/update/${id}`, {

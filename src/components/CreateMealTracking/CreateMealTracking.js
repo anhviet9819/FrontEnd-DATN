@@ -69,7 +69,7 @@ function CreateMealTracking() {
         button: false,
         timer: 2000,
       }).then((value) => {
-        window.location.href = "/user/mealstracking";
+        window.location.href = `/user/mealstracking/mealfoodtracking/${response.id}`;
       });
     } else {
       // console.log("viett");
@@ -84,7 +84,7 @@ function CreateMealTracking() {
     <>
       <Container fluid>
         <Row>
-          <Col md="8">
+          <Col md="5">
             <Card>
               <Card.Header>
                 <Card.Title as="h4">Tạo mới nhật ký bữa ăn</Card.Title>
@@ -92,7 +92,7 @@ function CreateMealTracking() {
               <Card.Body>
                 <Form onSubmit={createMealstracking}>
                   <Row>
-                    <Col className="px-1" md="6">
+                    <Col className="pr-1" md="6">
                       <Form.Group>
                         <label>Thời gian</label>
                         <Form.Control
@@ -127,27 +127,25 @@ function CreateMealTracking() {
                       )}
                     </Col>
                   </Row>
-                  <Row>
+                  {/* <Row>
                     <Col className="px-1" md="6">
                       <Form.Group>
                         <label>Tên bữa ăn</label>
                         <Form.Control
                           id="name"
                           name="name"
-                          // defaultValue=""
                           placeholder="Nhập tên cho bữa ăn của bạn"
                           type="text"
                           onChange={(e) => {
                             setName(e.target.value);
-                            // setData.name(e.target.value);
                           }}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
-                  </Row>
+                  </Row> */}
                   <Row>
-                    <Col className="px-1" md="6">
-                      <label>Chọn nhóm thức ăn</label>
+                    <Col className="pr-1" md="6">
+                      <label>Chọn loại bữa ăn</label>
                       <Select
                         placeholder="Chọn loại bữa ăn"
                         options={mealTypeList}
@@ -159,7 +157,7 @@ function CreateMealTracking() {
                     </Col>
                   </Row>
                   <Row>
-                    <Col className="px-1" md="6">
+                    <Col className="pr-1" md="6">
                       <Form.Group>
                         <label>Chú thích cho bữa ăn</label>
                         <Form.Control

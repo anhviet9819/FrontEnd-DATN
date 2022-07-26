@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'react-bootstrap';
 
 Pagination.propTypes = {
     pagination: PropTypes.object.isRequired,
@@ -23,20 +24,20 @@ function Pagination(props) {
     }
 
     return (
-        <div>
-            <button
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Button style={{ color: 'blue' }}
                 disabled={_page <= 0}
                 onClick={() => handlePageChange(_page - 1)}
             >
-                Prev
-            </button>
+                Trang trước
+            </Button>
 
-            <button
+            <Button style={{ color: 'blue' }}
                 disabled={_page >= totalPages - 1}
                 onClick={() => handlePageChange(_page + 1)}
             >
-                Next
-            </button>
+                Trang sau
+            </Button>
         </div>
     );
 }

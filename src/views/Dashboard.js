@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import ChartistGraph from "react-chartist";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 // react-bootstrap components
 import {
   Badge,
@@ -19,32 +22,173 @@ import getUserDetails from "services/ProfileApi";
 import profileApi from "services/ProfileApi";
 import basicProfileApi from "services/BasicProfileApi";
 import basicTrackingApi from "services/BasicTrackingApi";
-import { Select } from "@material-ui/core";
+import Select from "react-select";
+import mealsTrackingApi from "services/MealsTrackingApi";
 
 function Dashboard() {
   const [accessToken, setAccessToken] = useState(
     localStorage.getItem("accessToken")
   );
   const [username, setUsername] = useState(localStorage.getItem("username"));
+  const [usertrackingid, setUsertrackingid] = useState(
+    localStorage.getItem("userTrackingId")
+  );
 
   const [userProfile, setUserProfile] = useState({});
   const [userTrackingProfile, setUserTrackingProfile] = useState({});
+
+  const caloServingList = [
+    2652, 3000, 2733.6, 2208.6, 3312.6, 1900, 2667, 2553, 2568, 2569.2, 2996,
+    2105.4, 2192, 2300, 2999,
+  ];
+
+  const caloLostList = [
+    210, 307.6, 1220, 1500, 960, 875.5, 875.5, 1050, 670, 695, 824.5, 786,
+  ];
+
+  const [pieChartData, setPieChartData] = useState({});
+  const [pieChartStart, setPieChartStart] = useState();
+  const [pieChartEnd, setPieChartEnd] = useState();
+
+  const chartChosen = [
+    {
+      value: "7 ngày qua",
+      label: "7 ngày qua",
+    },
+    {
+      value: "14 ngày qua",
+      label: "14 ngày qua",
+    },
+  ];
+
+  const [chosen, setChosen] = useState(7);
+
+  const generateCaloServeArray = (dayAmout) => {
+    let array = [];
+    for (let i = 0; i < dayAmout; i++) {
+      const random = Math.floor(Math.random() * caloServingList.length);
+      array.push(caloServingList[random]);
+    }
+    return array;
+  };
+
+  const generateCaloLossArray = (dayAmout) => {
+    let array = [];
+    for (let i = 0; i < dayAmout; i++) {
+      const random = Math.floor(Math.random() * caloLostList.length);
+      array.push(caloLostList[random]);
+    }
+    return array;
+  };
+
+  const generateSevenDays = (dayAmount) => {
+    let today = new Date().toISOString().slice(5, 10);
+    let temp = new Date(new Date().toISOString());
+    let arraySevenDays = [today];
+    for (let i = 1; i <= dayAmount - 1; i++) {
+      let epochDay = Date.parse(temp) - i * 86400000;
+      let day = new Date(epochDay).toISOString().slice(5, 10);
+      arraySevenDays.unshift(day);
+    }
+    return arraySevenDays;
+  };
 
   useEffect(() => {
     basicProfileApi.getByUsername(username, accessToken).then((data) => {
       localStorage.setItem("name", data.name);
       localStorage.setItem("birthday", data.birthday.substring(0, 10));
       setUserProfile(data);
-      // console.log(data);
       basicTrackingApi
         .getById(data.usersTracking.id, accessToken)
         .then((data1) => {
-          // console.log(data1);
           setUserTrackingProfile(data1);
           localStorage.setItem("userTrackingId", data1.id);
         });
+      mealsTrackingApi
+        .getBieuDoDinhDuongBuaAnByCreatedAtBetween(
+          accessToken,
+          data.usersTracking.id,
+          "",
+          ""
+        )
+        .then((data2) => {
+          setPieChartData({
+            labels: [
+              `${data2[0].toString()}%`,
+              `${data2[1].toString()}%`,
+              `${data2[2].toString()}%`,
+              `${data2[3].toString()}%`,
+              `${data2[4].toString()}%`,
+              `${data2[5].toString()}%`,
+              `${data2[6].toString()}%`,
+            ],
+            series: data2,
+          });
+        });
     });
+    return;
   }, []);
+
+  const xemBieudoDinhDuongTheoThanhPhan = () => {
+    console.log(
+      new Date(
+        pieChartStart.getTime() - pieChartStart.getTimezoneOffset() * 60000
+      ).toISOString()
+    );
+    mealsTrackingApi
+      .getBieuDoDinhDuongBuaAnByCreatedAtBetween(
+        accessToken,
+        usertrackingid,
+        new Date(
+          pieChartStart.getTime() - pieChartStart.getTimezoneOffset() * 60000
+        )
+          .toISOString()
+          .substring(0, 10),
+        new Date(
+          pieChartEnd.getTime() - pieChartEnd.getTimezoneOffset() * 60000
+        )
+          .toISOString()
+          .substring(0, 10)
+      )
+      .then((data) => {
+        setPieChartData({
+          labels: [
+            `${data[0].toString()}%`,
+            `${data[1].toString()}%`,
+            `${data[2].toString()}%`,
+            `${data[3].toString()}%`,
+            `${data[4].toString()}%`,
+            `${data[5].toString()}%`,
+            `${data[6].toString()}%`,
+          ],
+          series: data,
+        });
+      });
+  };
+
+  // useEffect(() => {
+  //   mealsTrackingApi
+  //     .getBieuDoDinhDuongBuaAnByCreatedAtBetween(
+  //       accessToken,
+  //       usertrackingid,
+  //       "",
+  //       ""
+  //     )
+  //     .then((data) => {
+  //       setPieChartData({
+  //         labels: [
+  //           `${data[0].toString()}%`,
+  //           `${data[1].toString()}%`,
+  //           `${data[2].toString()}%`,
+  //           `${data[3].toString()}%`,
+  //           `${data[4].toString()}%`,
+  //           `${data[5].toString()}%`,
+  //           `${data[6].toString()}%`,
+  //         ],
+  //         series: data,
+  //       });
+  //     });
+  // }, []);
 
   return (
     <>
@@ -91,7 +235,7 @@ function Dashboard() {
                     <div className="numbers">
                       <p className="card-category">Cân nặng</p>
                       <Card.Title as="h4">
-                        {userTrackingProfile.current_weight}cm
+                        {userTrackingProfile.current_weight}kg
                       </Card.Title>
                     </div>
                   </Col>
@@ -147,8 +291,8 @@ function Dashboard() {
                     <div className="numbers">
                       <p className="card-category">Chỉ số huyết áp</p>
                       <Card.Title as="h4">
-                        {userTrackingProfile.current_diastolic}/
-                        {userTrackingProfile.current_systolic}
+                        {userTrackingProfile.current_systolic}/
+                        {userTrackingProfile.current_diastolic}
                       </Card.Title>
                     </div>
                   </Col>
@@ -241,8 +385,50 @@ function Dashboard() {
           <Col md="4">
             <Card>
               <Card.Header>
-                <Card.Title as="h4">Email Statistics</Card.Title>
-                <p className="card-category">Last Campaign Performance</p>
+                <Card.Title as="h4">Thống kê dinh dưỡng</Card.Title>
+                <p className="card-category">
+                  Thống kê các thành phần dinh dưỡng qua bữa ăn theo ngày
+                </p>
+                <Row>
+                  <Col>
+                    <p className="card-category">Từ</p>
+                    <DatePicker
+                      className="card-category"
+                      selected={pieChartStart}
+                      onChange={(date) => {
+                        setPieChartStart(date);
+                      }}
+                    />
+                  </Col>
+                  {/* <Col>đến</Col> */}
+                  <Col>
+                    <p className="card-category">đến</p>
+                    <DatePicker
+                      className="card-category"
+                      selected={pieChartEnd}
+                      onChange={(date) => {
+                        setPieChartEnd(date);
+                      }}
+                    />
+                  </Col>
+                  <Col>
+                    <Button
+                      className="card-category"
+                      style={{
+                        marginLeft: "-15px",
+                        marginBottom: "0px",
+                        fontSize: "15px",
+                        color: "black",
+                        borderColor: "black",
+                        height: "45px",
+                        textAlign: "center",
+                      }}
+                      onClick={xemBieudoDinhDuongTheoThanhPhan}
+                    >
+                      Xem
+                    </Button>
+                  </Col>
+                </Row>
               </Card.Header>
               <Card.Body>
                 <div
@@ -250,18 +436,36 @@ function Dashboard() {
                   id="chartPreferences"
                 >
                   <ChartistGraph
-                    data={{
-                      labels: ["40%", "20%", "40%"],
-                      series: [40, 20, 40],
-                    }}
+                    data={pieChartData}
                     type="Pie"
+                    // options={{ showLabel: false }}
                   />
                 </div>
                 <div className="legend">
                   <i className="fas fa-circle text-info"></i>
-                  Open <i className="fas fa-circle text-danger"></i>
-                  Bounce <i className="fas fa-circle text-warning"></i>
-                  Unsubscribe
+                  Chất béo <i className="fas fa-circle text-danger"></i>
+                  Đạm <i className="fas fa-circle text-warning"></i>
+                  Tinh bột<br></br>
+                  <i
+                    style={{ color: "rgb(147,104,233" }}
+                    className="fas fa-circle"
+                  ></i>
+                  Chất xơ{" "}
+                  <i
+                    style={{ color: "rgb(125, 203, 22)" }}
+                    className="fas fa-circle"
+                  ></i>
+                  Đường{" "}
+                  <i
+                    style={{ color: "rgb(116, 125, 187)" }}
+                    className="fas fa-circle"
+                  ></i>
+                  Canxi
+                  <i
+                    style={{ color: "rgb(94,94,94)" }}
+                    className="fas fa-circle "
+                  ></i>
+                  Các thành phần khác
                 </div>
                 <hr></hr>
                 <div className="stats">
@@ -276,36 +480,29 @@ function Dashboard() {
           <Col md="6">
             <Card>
               <Card.Header>
-                <Card.Title as="h4">Thống kê dinh dưỡng</Card.Title>
-                <p className="card-category">All products including Taxes</p>
+                <Col>
+                  <Card.Title as="h4">Thống kê dinh dưỡng</Card.Title>
+                  {/* <p className="card-category">All products including Taxes</p> */}
+                </Col>
+                <Col>
+                  <Select
+                    options={chartChosen}
+                    onChange={(e) => {
+                      if (e.value === "7 ngày qua") {
+                        setChosen(7);
+                      } else setChosen(14);
+                    }}
+                  />
+                </Col>
               </Card.Header>
               <Card.Body>
                 <div className="ct-chart" id="chartActivity">
                   <ChartistGraph
                     data={{
-                      labels: [
-                        "Jan",
-                        "Feb",
-                        "Mar",
-                        "Apr",
-                        "Mai",
-                        "Jun",
-                        "Jul",
-                        "Aug",
-                        "Sep",
-                        "Oct",
-                        "Nov",
-                        "Dec",
-                      ],
+                      labels: generateSevenDays(chosen),
                       series: [
-                        [
-                          542, 443, 320, 780, 553, 453, 326, 434, 568, 610, 756,
-                          895,
-                        ],
-                        [
-                          412, 243, 280, 580, 453, 353, 300, 364, 368, 410, 636,
-                          695,
-                        ],
+                        generateCaloServeArray(chosen),
+                        generateCaloLossArray(chosen),
                       ],
                     }}
                     type="Bar"

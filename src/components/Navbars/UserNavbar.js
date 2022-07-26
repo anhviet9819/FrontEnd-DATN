@@ -1,10 +1,29 @@
-import React, { Component } from "react";
+import React, { Component, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
 
 import routes from "../../routes";
+import mealsTrackingApi from "services/MealsTrackingApi";
+import activitiesTrackingApi from "services/ActivitiesTrackingApi";
+import basicProfileApi from "services/BasicProfileApi";
 
 function Header() {
+  const [accessToken, setAccessToken] = useState(
+    localStorage.getItem("accessToken")
+  );
+  const [usertrackingid, setUsertrackingid] = useState(
+    localStorage.getItem("userTrackingId")
+  );
+  const [username, setUsername] = useState(localStorage.getItem("username"));
+
+  const [notificationMealTracking, setNotificationMealTracking] = useState();
+  const [notificationActivityTracking, setNotificationActivityTracking] =
+    useState();
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  const [mealsTracking, setMealstracking] = useState([]);
+  const [activitiesTracking, setActivitiesTracking] = useState([]);
+
   const location = useLocation();
   const mobileSidebarToggle = (e) => {
     e.preventDefault();
@@ -26,6 +45,62 @@ function Header() {
     }
     return "Brand";
   };
+
+  useEffect(
+    //2 buoc:
+    //bước 1: Xác định xem tìm vào ngày nào: Ví dụ đang là 3h sáng 3/7/2022 ở VN thì
+    //chỉ là 20h 2/7/2022 giờ UTC, nên phải convert xem cần tìm trong ngày nào trước rồi mới tìm
+    //bước 2: convert từ 0h giờ VN -> 17h ngày trước đó giờ UTC
+    () => {
+      basicProfileApi.getByUsername(username, accessToken).then((data) => {
+        let currentDateUTC = new Date().toISOString();
+        let epochDateUTC = Date.parse(currentDateUTC);
+        let epochDateVN = epochDateUTC + 7 * 3600000;
+        let dateVN = new Date(epochDateVN).toISOString();
+
+        let dateConvertToSearch = dateVN.slice(0, 10).concat("T00:00:00.001Z");
+        let epochDateConvertToSearch = Date.parse(dateConvertToSearch);
+        let epochYesterday17hToSearch = epochDateConvertToSearch - 7 * 3600000;
+        let start = new Date(epochYesterday17hToSearch).toISOString();
+        let end = dateVN.slice(0, 10).concat("T16:59:59.001Z");
+        Promise.all([
+          mealsTrackingApi.getByFilters(
+            accessToken,
+            data.usersTracking.id,
+            start,
+            end,
+            ""
+          ),
+          activitiesTrackingApi.getToNotice(
+            accessToken,
+            data.usersTracking.id,
+            start,
+            end
+          ),
+        ]).then(([mealsTracking, activitiesTracking]) => {
+          let mealsNoti = 0;
+          let activitiesNoti = 0;
+          if (mealsTracking.length === 0) {
+            setNotificationMealTracking(1);
+            mealsNoti = 1;
+          } else {
+            setNotificationMealTracking(0);
+            mealsNoti = 0;
+          }
+          if (activitiesTracking === false) {
+            setNotificationActivityTracking(1);
+            activitiesNoti = 1;
+          } else {
+            setNotificationActivityTracking(0);
+            activitiesNoti = 0;
+          }
+          setNotificationCount(mealsNoti + activitiesNoti);
+        });
+      });
+      return;
+    },
+    [notificationCount]
+  );
 
   const handleLogout = () => {
     localStorage.clear();
@@ -78,40 +153,34 @@ function Header() {
                 className="m-0"
               >
                 <i className="nc-icon nc-planet"></i>
-                <span className="notification">5</span>
+                {notificationCount !== 0 ? (
+                  <span className="notification">{notificationCount}</span>
+                ) : (
+                  <></>
+                )}
                 <span className="d-lg-none ml-1">Notification</span>
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Notification 1
-                </Dropdown.Item>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Notification 2
-                </Dropdown.Item>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Notification 3
-                </Dropdown.Item>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Notification 4
-                </Dropdown.Item>
-                <Dropdown.Item
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Another notification
-                </Dropdown.Item>
+                {notificationMealTracking !== 0 ? (
+                  <Dropdown.Item
+                    href="/user/mealstracking/createmealtracking"
+                    // onClick={(e) => e.preventDefault()}
+                  >
+                    Bạn chưa tạo nhật ký ăn uống ngày hôm nay, tạo ngay nhé!
+                  </Dropdown.Item>
+                ) : (
+                  <></>
+                )}
+                {notificationActivityTracking !== 0 ? (
+                  <Dropdown.Item
+                    href="/user/activitiestracking/createactivitytracking"
+                    // onClick={(e) => e.preventDefault()}
+                  >
+                    Bạn chưa tạo nhật ký hoạt động ngày hôm nay, tạo ngay nhé!
+                  </Dropdown.Item>
+                ) : (
+                  <></>
+                )}
               </Dropdown.Menu>
             </Dropdown>
             <Nav.Item>
@@ -126,7 +195,7 @@ function Header() {
             </Nav.Item>
           </Nav>
           <Nav className="ml-auto" navbar>
-            <Nav.Item>
+            {/* <Nav.Item>
               <Nav.Link
                 className="m-0"
                 href="#pablo"
@@ -134,7 +203,7 @@ function Header() {
               >
                 <span className="no-icon">Account</span>
               </Nav.Link>
-            </Nav.Item>
+            </Nav.Item> */}
             <Dropdown as={Nav.Item}>
               <Dropdown.Toggle
                 aria-expanded={false}

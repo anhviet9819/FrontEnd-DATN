@@ -1,5 +1,4 @@
 import CreateMealTracking from "../components/CreateMealTracking/CreateMealTracking";
-import CreateMealTrackingNotice from "../components/CreateMealTracking/CreateMealTrackingNotice";
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -24,6 +23,7 @@ import CreateMealFoodTracking from "../components/CreateMealTracking/CreateMealF
 import MealFoodTracking from "components/CreateMealTracking/MealFoodTracking";
 import swal from "sweetalert";
 import Select from "react-select";
+import Pagination from "components/Pagination";
 import CreateActivityTracking from "components/ActivityTracking/CreateActivityTracking";
 import UpdateActivityTracking from "components/ActivityTracking/UpdateActivityTracking";
 import UpdatePersonalIndexHistory from "components/BasicTrackingHistory/UpdatePersonalIndexHistory";
@@ -44,6 +44,13 @@ function MealsTracking() {
     createdAtStart: "",
     createdAtEnd: "",
     type: "",
+    _page: 0,
+    _size: 7,
+  });
+  const [pagination, setPagination] = useState({
+    _page: 0,
+    _size: 7,
+    _totalRows: 100,
   });
 
   const [createdList, setCreatedList] = useState([
@@ -89,50 +96,81 @@ function MealsTracking() {
     },
   ]);
 
-  useEffect(() => {
-    mealsTrackingApi
-      .getMealsTrackingByUsertrackingId(usertrackingid, accesstoken)
-      .then((data) => {
-        data.map((mealtracking) => {
-          // let datetime = mealtracking.created_at.split("T");
-          // let date = datetime[0].split("-");
-          // let day = date[2];
-          // let month = date[1];
-          // let year = date[0];
-          // let time = datetime[1].slice(0, 9).split(":");
-          // let hour = parseInt(time[0]) + 7;
-          // let minute = time[1];
-          // let newCreatedAt = `${hour}:${minute} ${day}-${month}-${year}`;
-          // mealtracking.created_at = newCreatedAt;
-          mealtracking.created_at = new Date(
-            mealtracking.created_at
-          ).toLocaleString();
-        });
-        setMealstrackingDataCheck(data);
-      });
-  }, [mealstrackingDataCheck]);
+  // useEffect(() => {
+  //   mealsTrackingApi
+  //     .getMealsTrackingByUsertrackingId(usertrackingid, accesstoken)
+  //     .then((data) => {
+  //       data.map((mealtracking) => {
+  //         mealtracking.created_at = new Date(
+  //           mealtracking.created_at
+  //         ).toLocaleString();
+  //       });
+  //       setMealstrackingDataCheck(data);
+  //     });
+  //   return;
+  // }, [mealstrackingDataCheck]);
 
   useEffect(() => {
-    // console.log(filters);
-    mealsTrackingApi
-      .getByFilters(
-        accesstoken,
-        usertrackingid,
-        filters.createdAtStart,
-        filters.createdAtEnd,
-        filters.type
-      )
-      .then((data) => {
-        // console.log(data);
-
-        data.map((mealtracking) => {
-          mealtracking.created_at = new Date(
-            mealtracking.created_at
-          ).toLocaleString();
-        });
-        setMealstrackingData(data);
-      });
+    Promise.all([
+      mealsTrackingApi
+        .getByFiltersPagination(
+          accesstoken,
+          usertrackingid,
+          filters.createdAtStart,
+          filters.createdAtEnd,
+          filters.type,
+          filters._page,
+          filters._size
+        )
+        .then((data) => {
+          console.log(data);
+          data.content.map((mealtracking) => {
+            mealtracking.created_at = new Date(
+              mealtracking.created_at
+            ).toLocaleString();
+            mealtracking.meal_calories =
+              Math.round(mealtracking.meal_calories * 100) / 100;
+            mealtracking.meal_fat =
+              Math.round(mealtracking.meal_fat * 100) / 100;
+            mealtracking.meal_protein =
+              Math.round(mealtracking.meal_protein * 100) / 100;
+            mealtracking.meal_carbohydrates =
+              Math.round(mealtracking.meal_carbohydrates * 100) / 100;
+            mealtracking.meal_diatery_fiber =
+              Math.round(mealtracking.meal_diatery_fiber * 100) / 100;
+            mealtracking.meal_sugars =
+              Math.round(mealtracking.meal_sugars * 100) / 100;
+            mealtracking.meal_calcium =
+              Math.round(mealtracking.meal_calcium * 100) / 100;
+          });
+          setMealstrackingData(data.content);
+          setPagination({
+            _page: data.number,
+            _size: data.size,
+            _totalRows: data.totalElements,
+          });
+        }),
+      mealsTrackingApi
+        .getMealsTrackingByUsertrackingId(usertrackingid, accesstoken)
+        .then((data) => {
+          data.map((mealtracking) => {
+            mealtracking.created_at = new Date(
+              mealtracking.created_at
+            ).toLocaleString();
+          });
+          setMealstrackingDataCheck(data);
+        }),
+    ]);
+    return;
   }, [filters]);
+
+  function handlePageChange(newPage) {
+    // console.log("New page: ", newPage);
+    setFilters({
+      ...filters,
+      _page: newPage,
+    });
+  }
 
   const navigateCreateMealTracking = () => {
     setIsShow(false);
@@ -151,7 +189,12 @@ function MealsTracking() {
     }).then((willDelete) => {
       if (willDelete) {
         mealsTrackingApi.deleteById(id, accesstoken);
-        swal("Success", "Bạn đã xóa nhật ký bữa ăn thành công!", "success");
+        swal("Success", "Bạn đã xóa nhật ký bữa ăn thành công!", "success", {
+          button: false,
+          timer: 2000,
+        }).then(() => {
+          window.location.href = "/user/mealstracking";
+        });
       }
       // else {
       //   swal("Your imaginary file is safe!");
@@ -281,8 +324,8 @@ function MealsTracking() {
                                 }}
                               />
                             </th>
-                            <th className="border-0">Tên nhật ký</th>
-                            <th className="border-0">Chi tiết nhật ký</th>
+                            {/* <th className="border-0">Tên nhật ký</th> */}
+                            {/* <th className="border-0">Chi tiết nhật ký</th> */}
                             <th className="border-0">
                               <Select
                                 placeholder="Loại bữa ăn"
@@ -317,7 +360,13 @@ function MealsTracking() {
                                 }}
                               />
                             </th>
-                            <th className="border-0">Hàm lượng cung cấp</th>
+                            <th className="border-0">Năng lượng(calo)</th>
+                            <th className="border-0">Chất béo(g)</th>
+                            <th className="border-0">Đạm(g)</th>
+                            <th className="border-0">Tinh bột(g)</th>
+                            <th className="border-0">Chất xơ(g)</th>
+                            <th className="border-0">Đường(g)</th>
+                            <th className="border-0">Canxi(mg)</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -325,7 +374,7 @@ function MealsTracking() {
                             return (
                               <tr key={mealstrackingData.id}>
                                 <td>{mealstrackingData.created_at}</td>
-                                <td>
+                                {/* <td>
                                   <Link
                                     to={`/user/mealstracking/mealfoodtracking/${mealstrackingData.id}`}
                                     onClick={() => {
@@ -337,10 +386,28 @@ function MealsTracking() {
                                   >
                                     {mealstrackingData.name}
                                   </Link>
+                                </td> */}
+                                {/* <td>{mealstrackingData.description}</td> */}
+                                <td>
+                                  <Link
+                                    to={`/user/mealstracking/mealfoodtracking/${mealstrackingData.id}`}
+                                    onClick={() => {
+                                      localStorage.setItem(
+                                        "mealtrackingid",
+                                        mealstrackingData.id
+                                      );
+                                    }}
+                                  >
+                                    {mealstrackingData.type}
+                                  </Link>
                                 </td>
-                                <td>{mealstrackingData.description}</td>
-                                <td>{mealstrackingData.type}</td>
-                                <td>{mealstrackingData.meal_volume} calo</td>
+                                <td>{mealstrackingData.meal_calories}</td>
+                                <td>{mealstrackingData.meal_fat}</td>
+                                <td>{mealstrackingData.meal_protein}</td>
+                                <td>{mealstrackingData.meal_carbohydrates}</td>
+                                <td>{mealstrackingData.meal_diatery_fiber}</td>
+                                <td>{mealstrackingData.meal_sugars}</td>
+                                <td>{mealstrackingData.meal_calcium}</td>
                                 <td>
                                   <Button
                                     className="btn-fill pull-right"
@@ -371,16 +438,27 @@ function MealsTracking() {
                       </Table>
                     </Card.Body>
                   </Card>
+                  <Pagination
+                    pagination={pagination}
+                    onPageChange={handlePageChange}
+                  />
+                  <Button
+                    className="btn-fill pull-right"
+                    variant="primary"
+                    href="/user/mealstracking/createmealtracking"
+                  >
+                    Tạo nhật ký bữa ăn mới
+                  </Button>
                 </Col>
               </Row>
-              <div>
+              {/* <div>
                 <Link
                   to="/user/mealstracking/createmealtracking"
                   onClick={() => navigateCreateMealTracking()}
                 >
                   Tạo nhật ký dinh dưỡng mới
                 </Link>
-              </div>
+              </div> */}
             </Container>
           </>
         )}
